@@ -1,8 +1,17 @@
+
+import * as THREE from 'three';
+import { EffectComposer } from "./ext/EffectComposer.js";
+import { TaaRenderPass } from "./TaaRenderPass.js";
+import { SSAARenderPass } from "./ext/SSAARenderPass.js";
+import { MotionVectorRenderer } from "./MotionVectorRenderer.js";
+
+
+
 /**
  * A mode of antialiasing to use
  * @enum
  */
-const AntiAliasingMode = {
+export const AntiAliasingMode = {
     NONE: 0,
     MSAA: 1,
     SSAA: 2,
@@ -13,25 +22,25 @@ const AntiAliasingMode = {
 
 /**
  * Render loop that handles lifetime and properties of the rendering process.
- * 
+ *
  * @property props properties related to the renderer
  * @property props.canvasElement the dom element pointing to the canvas to use
  * @property props.antialiasing the AntiAliasingMode to use
  * @property props.scene the scene to render
  * @property props.camera the camera that should be used to render the scene
  */
-function RenderLoop(props) {
+export function RenderLoop(props) {
     this.renderer = new THREE.WebGLRenderer({
         canvas: props.canvasElement,
         antialias: props.antialiasing == AntiAliasingMode.MSAA
     });
     this.scene = props.scene;
     this.camera = props.camera;
-    
+
     this._preRenderCallbacks = {_next: null};
     this._postRenderCallbacks = {_next: null};
     this._lastFameTime = performance.now();
-    this._composer = new THREE.EffectComposer(this.renderer);
+    this._composer = new EffectComposer(this.renderer);
     this.renderer.shadowMap.enabled = true;
     this.setAntialiasingMode(props.antialiasing);
 }
@@ -40,7 +49,7 @@ function RenderLoop(props) {
 /**
  * Set the mode of antialiasing used to render frames. This may result in large
  * hangs from recreating the webgl context.
- * 
+ *
  * @param mode the mode to set
  */
 RenderLoop.prototype.setAntialiasingMode = function(mode) {
@@ -61,7 +70,7 @@ RenderLoop.prototype.setAntialiasingMode = function(mode) {
 
     switch(mode) {
         case AntiAliasingMode.SSAA:
-            this._ssaaPass = new THREE.SSAARenderPass(this.scene, this.camera);
+            this._ssaaPass = new SSAARenderPass(this.scene, this.camera);
             this._ssaaPass.renderToScreen = true;
             this._ssaaPass.sampleLevel = 3; // 8x SSAA
             this._composer.addPass(this._ssaaPass);
@@ -94,7 +103,7 @@ RenderLoop.prototype.setAntialiasingMode = function(mode) {
  * in LIFO order. The callback may be removed by caling cancel() on the
  * returned node. Callbacks have a single parameter of the time since the last
  * frame in ms.
- * 
+ *
  * @param callback a callback with an optional single parameter of time passed
  */
 RenderLoop.prototype.onPreRender = function(callback) {
@@ -107,7 +116,7 @@ RenderLoop.prototype.onPreRender = function(callback) {
  * Add a callback to be executed after rendering the frame. Callbacks are run
  * in LIFO order. The callback may be removed by caling cancel() on the
  * returned node.
- * 
+ *
  * @param callback a no parameter callback
  */
 RenderLoop.prototype.onPostRender = function(callback) {
@@ -130,7 +139,7 @@ RenderLoop.prototype.start = function() {
 /**
  * Continually render frames. This cannot be stopped and should not be called
  * multiple times.
- * 
+ *
  * @param currentTime a high resolution timestamp (ie from performance.Now())
  */
 RenderLoop.prototype._render = function(currentTime) {
@@ -167,7 +176,7 @@ RenderLoop.prototype._render = function(currentTime) {
 /**
  * Add a callback to a list of callbacks and return the node (which is also now
  * the head of the list)
- * 
+ *
  * @param callback the callback to be added
  * @param list a linked list of callbacks
  */
@@ -193,7 +202,7 @@ RenderLoop.prototype._addCallbackNode = function(callback, list) {
 
 /**
  * Nuke and rebuild the webgl context, recreating the renderer
- * 
+ *
  * @param aaMode the antialiasing mode that should be used
  */
 RenderLoop.prototype._rebuildGlContext = function(aaMode) {
@@ -206,5 +215,5 @@ RenderLoop.prototype._rebuildGlContext = function(aaMode) {
         antialias: aaMode == AntiAliasingMode.MSAA
     });
     this.renderer.shadowMap.enabled = true;
-    this._composer = new THREE.EffectComposer(this.renderer);
+    this._composer = new EffectComposer(this.renderer);
 }

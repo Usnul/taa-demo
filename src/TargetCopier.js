@@ -1,9 +1,13 @@
+
+import * as THREE from 'three';
+import { CopyShader } from "./ext/CopyShader.js";
+
 /**
  * Scene set up to emulate copying a texture to a RenderTarget
- * 
+ *
  * @renderLoop a RenderLoop whose renderer is used
  */
-function TargetCopier(renderLoop) {
+export function TargetCopier(renderLoop) {
     this._camera = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
     this._scene = new THREE.Scene();
     this._renderLoop = renderLoop;
@@ -28,8 +32,8 @@ TargetCopier.prototype.dispose = function() {
  * Material used to copy an input texture
  */
 TargetCopier.prototype._baseCopyMaterial = new THREE.ShaderMaterial({
-    vertexShader: THREE.CopyShader.vertexShader,
-    fragmentShader: THREE.CopyShader.fragmentShader,
+    vertexShader: CopyShader.vertexShader,
+    fragmentShader: CopyShader.fragmentShader,
     premultipliedAlpha: true,
     transparent: true,
     blending: THREE.AdditiveBlending,
@@ -41,7 +45,7 @@ TargetCopier.prototype._baseCopyMaterial = new THREE.ShaderMaterial({
 /**
  * Copy the input target to the output target. An optional custom material may
  * be used to manipulate the texture further.
- * 
+ *
  * @param source the source render target
  * @param dest the destination render target
  * @param customMaterial an optional custom material to use in place of the

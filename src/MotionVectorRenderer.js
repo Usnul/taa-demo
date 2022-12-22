@@ -1,9 +1,11 @@
+import * as THREE from 'three';
+
 /**
  * Utility used to render motion vectors for a scene
- * 
+ *
  * @param renderLoop a RenderLoop whose scene and canvas will be used
  */
-function MotionVectorRenderer(renderLoop) {
+export function MotionVectorRenderer(renderLoop) {
     this._cachedMotionMaterials = {};
     this._renderLoop = renderLoop;
     this._lastFrameView = renderLoop.camera.matrixWorldInverse.clone();
@@ -29,7 +31,7 @@ function MotionVectorRenderer(renderLoop) {
 MotionVectorRenderer.prototype.dispose = function() {
     this._renderCallback.cancel();
 
-    for (id in this._cachedMotionMaterials) {
+    for (let id in this._cachedMotionMaterials) {
         if (this._cachedMotionMaterials.hasOwnProperty(id))
             this._cachedMotionMaterials[id].dispose();
     }
@@ -42,7 +44,7 @@ MotionVectorRenderer.prototype.dispose = function() {
  */
 MotionVectorRenderer.prototype._baseMaterial = new THREE.ShaderMaterial({
         side: THREE.DoubleSide,
-        
+
         vertexShader: `
         uniform mat4 lastFrameModel;
         uniform mat4 lastFrameView;
@@ -78,7 +80,7 @@ MotionVectorRenderer.prototype._baseMaterial = new THREE.ShaderMaterial({
 /**
  * Render a motion map for the scene to the given renderTarget or the canvas if
  * none is specified.
- * 
+ *
  * @param colorScale An amount to scale the color of the motion by. Useful for
  *        demonstration and debugging
  * @param renderTarget an optional render target

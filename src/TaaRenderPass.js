@@ -7,7 +7,12 @@
  * @param renderLoop the RenderLoop whose scene is used
  * @param numFrames the number of frames to accumulate
  */
-function TaaRenderPass(renderLoop) {
+import * as THREE from 'three';
+import { Pass } from "./ext/Pass.js";
+import { TargetCopier } from "./TargetCopier.js";
+import { MotionVectorRenderer } from "./MotionVectorRenderer.js";
+
+export function TaaRenderPass(renderLoop) {
     this.renderToScreen = false;
 
     this._renderLoop = renderLoop;
@@ -32,7 +37,7 @@ function TaaRenderPass(renderLoop) {
     });
 }
 
-TaaRenderPass.prototype = Object.create(THREE.Pass.prototype);
+TaaRenderPass.prototype = Object.create(Pass.prototype);
 
 
 /**
@@ -167,7 +172,7 @@ TaaRenderPass.prototype.render = function (renderer, writeBuffer, readBuffer) {
 /**
  * Generate jitter amounts based on the Halton Sequence. Jitters are
  * normailized to be between -1 and 1
- * 
+ *
  * @param length the number of offsets to generate
  */
 TaaRenderPass.prototype._generateHaltonJiters = function(length) {
@@ -183,7 +188,7 @@ TaaRenderPass.prototype._generateHaltonJiters = function(length) {
 /**
  * Generate a number in the Halton Sequence at a given index. This is
  * shamelessly stolen from the pseudocode on the Wikipedia page
- * 
+ *
  * @param base the base to use for the Halton Sequence
  * @param index the index into the sequence
  */
